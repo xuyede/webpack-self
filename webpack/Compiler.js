@@ -1,10 +1,11 @@
-const { join, resolve } = require("path");
+const { resolve } = require("path");
 const Compilation = require("./Compilation.js");
 const { SyncHook, AsyncSeriesHook } = require("tapable");
 
 class Compiler {
   constructor(config) {
     this.config = config;
+    // 执行脚本位置
     this.root = process.cwd();
 
     // 程序全部钩子
