@@ -31,12 +31,47 @@ class Compilation {
     // /Users/xuyede/Desktop/webpack/src/index.js -> ./src/index.js
     let moduleName = `./${relative(this.root, modulePath).replace(/\\/g, "/")}`;
 
+    // 保存主文件的路径
     if (isEntry) this.entryPath = moduleName;
 
-    console.log(dirname(moduleName));
+    const { hasModule, isCommonJs } = this.regCommonJs(source);
     // ast解析模块代码，获取模块中的相关依赖
     const parser = this.newParser();
-    parser.parse(source);
+    parser.parse(
+      source,
+      hasModule, 
+      isCommonJs
+    );
+  }
+
+  regCommonJs(source) {
+    // 匹配是否有关键字
+    const hasKeyword = /require|import/g;
+    // 匹配注释 //
+    const isAnnotation1 = /^\/\//;
+    // 匹配注释 /** */
+    const isAnnotation2 = /^\/\*\*(.*)\*\/$/;
+    // 以换行符切割主文件代码
+    const sources = source.split('\n');
+    // 是否有模块引入
+    let hasModule = false;
+    // 是否是commonjs规范
+    let isCommonJs = false;
+
+    for (let i = 0; i < sources.length; i++) {
+      // 拦截正式代码
+      if (!hasKeyword.test(sources[i])) break;
+      
+      if (!isAnnotation1.test(sources[i]) && !isAnnotation2.test(sources[i])) {
+        hasModule = true;
+        isCommonJs = sources[i].indexOf('require') > 0 ? true : false;
+      }
+    }
+
+    return {
+      hasModule, 
+      isCommonJs
+    };
   }
 
   newParser() {
