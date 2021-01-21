@@ -1,6 +1,7 @@
 const fs = require("fs");
+const ejs = require('ejs');
 const Parser = require('./Parser.js');
-const { relative, dirname } = require("path");
+const { resolve, relative, dirname, join } = require("path");
 
 class Compilation {
   constructor(compiler) {
@@ -35,13 +36,33 @@ class Compilation {
     if (isEntry) this.entryPath = moduleName;
 
     const { hasModule, isCommonJs } = this.regCommonJs(source);
-    // ast解析模块代码，获取模块中的相关依赖
     const parser = this.newParser();
-    parser.parse(
-      source,
-      hasModule, 
-      isCommonJs
+    // ast解析模块代码，获取模块中的相关依赖与源代码【可能是更改过的】
+    const { dependencies, sourceCode } = parser.parse(
+      source, /** 模块代码 */
+      dirname(moduleName),  /** 模块目录名 */
+      hasModule,  /** 是否有模块 */
+      isCommonJs  /** 是否是commonjs模块 */
     );
+
+    this.modules[moduleName] = sourceCode;
+    dependencies.forEach(d => this.buildModule(join(this.root, d), false))
+  }
+
+
+  emit() {
+    const { modules, entryPath } = this;
+    // 输出路径
+    const outputPath = resolve(this.root, this.config.output.path);
+    // 输出文件名
+    const filePath = resolve(outputPath, this.config.output.filename)
+    // 检测是否已有输出路径
+    if (!fs.existsSync(outputPath)) fs.mkdirSync(outputPath)
+
+    ejs.renderFile(join(__dirname, 'template/output.ejs'), { modules, entryPath })
+      .then(code => {
+        // fs.writeFileSync(filePath, code);
+      })
   }
 
   regCommonJs(source) {

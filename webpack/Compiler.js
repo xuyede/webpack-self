@@ -49,6 +49,8 @@ class Compiler {
         resolve(this.root, entry) /** modulePath */,
         true /** isEntry */
       );
+      // 把数据注入到模版并输出
+      compilation.emit();
     });
   }
 
