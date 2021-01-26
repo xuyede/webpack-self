@@ -61,7 +61,7 @@ class Compilation {
 
     ejs.renderFile(join(__dirname, 'template/output.ejs'), { modules, entryPath })
       .then(code => {
-        // fs.writeFileSync(filePath, code);
+        fs.writeFileSync(filePath, code);
       })
   }
 

@@ -47,17 +47,31 @@ class Parser{
       }
     })
 
+    // 处理生成的代码，去除注释，去除换行，转义特殊符号
     let sourceCode = this.parseSpecialCharacter(transformFromAst(ast).code);;
     
-    console.log(sourceCode)
-
     return {
       dependencies,
       sourceCode
     }
   }
+
   parseSpecialCharacter(code) {
-    return code
+    let dealCode = code;
+
+    // 去除注释
+    const annotationReg = /\/\/(.)*/g;
+    dealCode = dealCode.replace(annotationReg, '');
+
+    // 去除换行符
+    const spaceReg = /(\n)*/g;
+    dealCode = dealCode.replace(spaceReg, '');
+
+    // 转义 / " '
+    const charReg = /\'|\"|\//g;
+    dealCode = dealCode.replace(charReg, $ => `\\${$}`);
+
+    return dealCode;
   }
 }
 

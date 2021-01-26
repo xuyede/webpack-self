@@ -23,7 +23,7 @@
   <%for (const key in modules) {%>
       "<%-key%>":
       (function (module, exports, __webpack_require__) {
-          eval(<%-modules[key]%>);
+          eval("<%-modules[key]%>");
       }),
   <%}%>
 });
