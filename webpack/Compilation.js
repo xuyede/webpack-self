@@ -16,8 +16,11 @@ class Compilation {
   }
 
   getSource(modulePath) {
-    const content = fs.readFileSync(modulePath, "utf-8");
-    return content;
+    try {
+      
+    } catch (error) {
+      throw new Error(`[error] 获取文件源代码错误: ${modulePath}`);
+    }
   }
 
   /**

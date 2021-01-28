@@ -30,7 +30,7 @@ class Parser{
         const node = p.node;
         if (node.callee.name === 'require') {
           // 函数名替换
-          node.callee.name = '__webpack_require__';
+          // node.callee.name = '__webpack_require__';
           let modulePath = node.arguments[0].value;
           if (!extname(modulePath)) {
             // require('./js/moduleA')
@@ -43,13 +43,27 @@ class Parser{
         }
       },
       ImportDeclaration(p) {
-        console.log('🤓️', p.node)
+        const node = p.node;
+
+        let modulePath = node.source.value;
+        if (!extname(modulePath)) {
+          // require('./js/moduleA')
+          throw new Error(`没有找到文件 : ${modulePath} , 检查是否加上正确的文件后缀`);
+        }
+        modulePath = './' + join(dirname, modulePath).replace(/\\/g, '/');
+        node.source = t.stringLiteral(modulePath);
+        dependencies.push(modulePath);
       }
     })
 
     // 处理生成的代码，去除注释，去除换行，转义特殊符号
-    let sourceCode = this.parseSpecialCharacter(transformFromAst(ast).code);;
-    
+    let sourceCode = this.parseSpecialCharacter(
+      // 使用 @babel/preset-env 转换代码
+      transformFromAst(ast, null, {
+        presets: ['@babel/preset-env'],
+      }).code
+    );
+
     return {
       dependencies,
       sourceCode
