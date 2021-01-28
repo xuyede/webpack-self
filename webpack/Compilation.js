@@ -17,7 +17,10 @@ class Compilation {
 
   getSource(modulePath) {
     try {
+      // TODO, 接入loader
       
+      const content = fs.readFileSync(modulePath, "utf-8");
+      return content;
     } catch (error) {
       throw new Error(`[error] 获取文件源代码错误: ${modulePath}`);
     }
