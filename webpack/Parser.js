@@ -81,8 +81,8 @@ class Parser{
     const spaceReg = /(\n)*/g;
     dealCode = dealCode.replace(spaceReg, '');
 
-    // 转义 / " '
-    const charReg = /\'|\"|\//g;
+    // 转义 / " ' \
+    const charReg = /\'|\"|\/|\\/g;
     dealCode = dealCode.replace(charReg, $ => `\\${$}`);
 
     return dealCode;

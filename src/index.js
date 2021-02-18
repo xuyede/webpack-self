@@ -1,4 +1,6 @@
 import text from './module.js';
-// const text = require('./module.js');
+import './index.scss';
 
-text && console.log(`🤓️ ${text}`);
+const oH1 = document.createElement('h1');
+oH1.innerHTML = 'Hello ' + text;
+document.body.appendChild(oH1);

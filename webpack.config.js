@@ -10,6 +10,17 @@ module.exports = {
     path: join(root, 'dist'),
     filename: 'main.bundle.js'
   },
+  module: {
+    rules: [
+      {
+        test: /\.scss/g,
+        use: [
+          join(root, 'webpack', 'loaders', 'style-loader.js'),
+          join(root, 'webpack', 'loaders', 'sass-loader.js')
+        ]
+      }
+    ]
+  },
   plugins: [
     new ConsoleLogOnBuildWebpackPlugin(),
   ]

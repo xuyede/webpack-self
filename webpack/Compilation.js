@@ -15,11 +15,36 @@ class Compilation {
     this.entryPath = "";
   }
 
+  /**
+   * @function 获得模块源代码，处理loader
+   * @param { string } modulePath  
+   */
   getSource(modulePath) {
     try {
-      // TODO, 接入loader
-      
-      const content = fs.readFileSync(modulePath, "utf-8");
+      const rules = (this.config.module && this.config.module.rules) || [];
+      let content = fs.readFileSync(modulePath, "utf-8");
+
+      // 处理 loader，从后面往前面处理
+      if (rules.length > 0) {
+        for (let i = 0; i < rules.length; i ++) {
+          let { test, use } = rules[i]
+          let len = use.length - 1
+
+          if (test.test(modulePath)) {
+            function loopLoader () {
+                let loader = require(use[len--]);
+                // 把模块的源代码直接传到loader中去处理
+                content = loader(content);
+
+                if (len >= 0) {
+                  // 递归处理所有loader
+                  loopLoader()
+                }
+            }
+            loopLoader()
+          }
+        }
+      }
       return content;
     } catch (error) {
       throw new Error(`[error] 获取文件源代码错误: ${modulePath}`);
@@ -33,6 +58,7 @@ class Compilation {
   buildModule(modulePath, isEntry) {
     // 获取模块源代码，可以在此处执行loader
     let source = this.getSource(modulePath);
+
     // 模块路径，转化成相对于执行路径的相对路径
     // replace(/\\/g, "/")，为了兼容window端通过relative可能会转成 ./src\index.js
     // /Users/xuyede/Desktop/webpack/src/index.js -> ./src/index.js
